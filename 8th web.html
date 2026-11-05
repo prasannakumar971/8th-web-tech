@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="labApp">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experiment 8 - AngularJS Directives</title>
+
+    <script src="https://code.angularjs.org/1.6.9/angular.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        header {
+            background: #172554;
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        header h1 {
+            margin: 0 0 10px;
+        }
+
+        header p {
+            margin: 5px;
+        }
+
+        .student-info {
+            position: absolute;
+            top: 12px;
+            right: 18px;
+            text-align: right;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 25px auto;
+            padding: 0 18px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px #00000012;
+        }
+
+        h2 {
+            color: #1d4ed8;
+            margin-top: 0;
+            border-bottom: 2px solid #dbeafe;
+            padding-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            margin: 12px 0 6px;
+            font-weight: bold;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 15px;
+            font-family: Arial, sans-serif;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            padding: 10px 17px;
+            border: none;
+            border-radius: 6px;
+            margin-top: 12px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background: #1e40af;
+        }
+
+        .delete-btn {
+            background: #dc2626;
+            margin: 0;
+            padding: 6px 10px;
+        }
+
+        .delete-btn:hover {
+            background: #991b1b;
+        }
+
+        .result {
+            background: #eff6ff;
+            padding: 15px;
+            margin-top: 18px;
+            border-left: 4px solid #2563eb;
+            border-radius: 6px;
+        }
+
+        .comment-list, .task-list {
+            padding-left: 22px;
+        }
+
+        .comment-list li, .task-list li {
+            padding: 10px;
+            margin: 8px 0;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            overflow-wrap: anywhere;
+        }
+
+        .comment-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .task-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .comment-text, .task-text {
+            flex: 1;
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .answer {
+            font-size: 25px;
+            font-weight: bold;
+            color: #047857;
+        }
+
+        .count {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        footer {
+            text-align: center;
+            background: #172554;
+            color: white;
+            padding: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .student-info {
+                position: static;
+                text-align: center;
+                margin-bottom: 12px;
+            }
+
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 17px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+  
+    <h1>WEB TECHNOLOGY LAB</h1>
+    <p>Experiment No. 08</p>
+    <p><strong>Working with AngularJS Directives</strong></p>
+</header>
+
+<div class="container">
+
+    <!-- QUESTION 1: COMMENT BOX -->
+    <section class="card" ng-controller="CommentController">
+        <h2>1. Simple Comment Box</h2>
+
+        <p>Enter a comment and click Post Comment to display it below.</p>
+
+        <form ng-submit="addComment()">
+            <label for="comment">Post Your Comment</label>
+
+            <textarea id="comment"
+                      ng-model="newComment"
+                      placeholder="Write your comment here..."></textarea>
+
+            <button type="submit">Post Comment</button>
+        </form>
+
+        <div class="result">
+            <h3>Comments</h3>
+
+            <p class="count" ng-if="comments.length === 0">
+                No comments posted yet.
+            </p>
+
+            <ul class="comment-list">
+                <li ng-repeat="comment in comments track by $index">
+                    <span class="comment-text">{{ comment }}</span>
+
+                    <button class="delete-btn"
+                            ng-click="removeComment($index)">
+                        Delete
+                    </button>
+                </li>
+            </ul>
+
+            <p class="count">
+                Total Comments: {{ comments.length }}
+            </p>
+        </div>
+    </section>
+
+
+    <!-- QUESTION 2: SIMPLE CALCULATOR -->
+    <section class="card" ng-controller="CalculatorController">
+        <h2>2. Simple Calculator</h2>
+
+        <p>Enter two numbers, select an operator, and view the result.</p>
+
+        <div class="calculator-grid">
+            <div>
+                <label for="num1">First Number</label>
+                <input type="number"
+                       id="num1"
+                       ng-model="a"
+                       placeholder="Enter first number">
+            </div>
+
+            <div>
+                <label for="num2">Second Number</label>
+                <input type="number"
+                       id="num2"
+                       ng-model="b"
+                       placeholder="Enter second number">
+            </div>
+        </div>
+
+        <label for="operator">Select Operator</label>
+
+        <select id="operator" ng-model="operator">
+            <option value="+">Addition (+)</option>
+            <option value="-">Subtraction (-)</option>
+            <option value="*">Multiplication (*)</option>
+            <option value="/">Division (/)</option>
+        </select>
+
+        <div class="result">
+            <p>Calculation Result</p>
+            <div class="answer">{{ calculate() }}</div>
+        </div>
+    </section>
+
+
+    <!-- QUESTION 3: TODO LIST -->
+    <section class="card" ng-controller="TodoController">
+        <h2>3. Simple To-Do List</h2>
+
+        <p>Enter a task and click Add to display it in the list.</p>
+
+        <form ng-submit="addTask()">
+            <label for="task">Task Description</label>
+
+            <input type="text"
+                   id="task"
+                   ng-model="newTask"
+                   placeholder="Enter a task">
+
+            <button type="submit">Add Task</button>
+        </form>
+
+        <div class="result">
+            <h3>My Tasks</h3>
+
+            <p class="count" ng-if="tasks.length === 0">
+                No tasks added yet.
+            </p>
+
+            <ul class="task-list">
+                <li ng-repeat="task in tasks track by $index">
+                    <span class="task-text">{{ task }}</span>
+
+                    <button class="delete-btn"
+                            ng-click="removeTask($index)">
+                        Delete
+                    </button>
+                </li>
+            </ul>
+
+            <p class="count">
+                Total Tasks: {{ tasks.length }}
+            </p>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    // Create the AngularJS application
+    var app = angular.module("labApp", []);
+
+
+    // QUESTION 1: COMMENT BOX CONTROLLER
+    app.controller("CommentController", function($scope) {
+
+        $scope.comments = [];
+        $scope.newComment = "";
+
+        $scope.addComment = function() {
+            if ($scope.newComment &&
+                $scope.newComment.trim() !== "") {
+
+                $scope.comments.push($scope.newComment.trim());
+                $scope.newComment = "";
+            }
+        };
+
+        $scope.removeComment = function(index) {
+            $scope.comments.splice(index, 1);
+        };
+
+    });
+
+
+    // QUESTION 2: CALCULATOR CONTROLLER
+    app.controller("CalculatorController", function($scope) {
+
+        $scope.a = 10;
+        $scope.b = 5;
+        $scope.operator = "+";
+
+        $scope.calculate = function() {
+
+            var a = Number($scope.a);
+            var b = Number($scope.b);
+
+            if ($scope.a === undefined ||
+                $scope.a === null || $scope.a === "" ||
+                $scope.b === undefined ||
+                $scope.b === null || $scope.b === "") {
+                return "Enter both numbers";
+            }
+
+            switch ($scope.operator) {
+
+                case "+":
+                    return a + b;
+
+                case "-":
+                    return a - b;
+
+                case "*":
+                    return a * b;
+
+                case "/":
+                    if (b === 0) {
+                        return "Cannot divide by zero";
+                    }
+                    return a / b;
+
+                default:
+                    return "Invalid operator";
+            }
+        };
+
+    });
+
+
+    // QUESTION 3: TO-DO LIST CONTROLLER
+    app.controller("TodoController", function($scope) {
+
+        $scope.tasks = [];
+        $scope.newTask = "";
+
+        $scope.addTask = function() {
+            if ($scope.newTask &&
+                $scope.newTask.trim() !== "") {
+
+                $scope.tasks.push($scope.newTask.trim());
+                $scope.newTask = "";
+            }
+        };
+
+        $scope.removeTask = function(index) {
+            $scope.tasks.splice(index, 1);
+        };
+
+    });
+</script>
+
+</body>
+</html>
